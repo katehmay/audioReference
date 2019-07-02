@@ -7,7 +7,6 @@
     //it contains all of the info about the event, what
     //triggered it, where it occured on the page etc.
     console.log(event.keyCode);
-
     let currentKey = document.querySelector(`div[data-key="${event.keyCode}"]`);
 
     if (!currentKey) {
@@ -16,40 +15,31 @@
     } else {
       //apply the playing class to the current div (the matching keyCode)
       currentKey.classList.add('playing');
-    }
 
-    let currentAudioClip =  document.querySelector(`audio[data-key="${event.keyCode}"]`);
-
-    //if we make a successful match, then play that matching audio element
-    //a ! (bang operator) is a test for a falsy value => means "not"
-    if (!currentAudioClip){ //if we don't have a match
-      return;
-      //currentAudioClip.play();
-    } else {
-      //there is no match, so no audio element to play -> do nothing
-      //a return will make a function exit without breaking anything
-      currentAudioClip.play()
-      //return;
+      //play the audio that goes with the div
+      let currentAudioClip = document.querySelector(`audio[data-key="${event.keyCode}"]`);
+      currentAudioClip.currentTime = 0;
+      currentAudioClip.play();
     }
   }
 
-  function resetSound(event) {
+  function removePlayingClass(event) {
+    //listen for the transitions to end, and then remove the playing class from the current key
 
-    //I need this to reset the audio, but only if I can find a matching element
-    //the event has the keycode – I need to make sure I find the audio first, and then reset setInterval(function () {
-
-    //audio has a currentTime property – reset that to 0?
-    //need to check a condition with an in statement?
-    let currentAudioClip = document.querySelector(`audio[data-key="${event.keyCode}"]`);
-
-    if (!currentAudioClip){
+    //I need a transition that only fires once so that I can only run this function once
+    if (event.propertyName !== "transform") {
       return;
     } else {
-    currentAudioClip.currentTime = 0;
+      //event.target is the target of the current event
+      //in this case it is the div because that's the element that is transitioning
+      console.log('transform transitions is done');
+      event.target.classList.remove('playing');
     }
   }
+
+  const keys = Array.from(document.querySelectorAll('.key'));
+  keys.forEach(key => key.addEventListener('transitionend', removePlayingClass));
 
   //try to get keyboard press events
   window.addEventListener("keydown", logKeyCode);
-  window.addEventListener("keyup", resetSound);
 })();
